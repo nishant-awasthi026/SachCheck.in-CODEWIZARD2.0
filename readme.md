@@ -141,6 +141,28 @@ graph TD
 
 ---
 
+## 🧗 Challenges Faced
+
+During the rapid development of PHEME's multimodal processing core, we encountered several significant architectural hurdles:
+
+1. **Terminal Encoding Crashes in CI/CD Environments**:
+   When piping telemetry via FastAPI/Uvicorn, the standard Windows console environment (`cp1252`) forcefully crashed with `500 Internal Server Errors` upon hitting UTF-8 Emojis used in print statements from our LangGraph expert classes (e.g., `image_expert.py`). This was solved by ensuring raw ASCII fallback handling and eliminating un-encoded payload characters in background threads.
+2. **State Management Across Modality Nodes**:
+   As a LangGraph workflow rapidly hands over execution context (Transitioning from an Image to Text via OCR), the `FactCheckState` payload must correctly overwrite references. A challenge involved AI sub-agents hallucinating file paths (`uploads/x.jpg`) as literal search strings, which we patched by injecting a robust delta-update loop prior to the Pre-Verification node.
+3. **Google Fact Check API Fluctuations**:
+   Encountered low-level TCP/SSL frame drops (`EOF occurred in violation of protocol`) when hitting public verification networks programmatically during dense asynchronous inference cycles. This necessitated creating more graceful fault-tolerance mechanics inside the orchestrator router.
+4. **Graph-RAG Synchronization on Windows**:
+   Deploying complex network infrastructures (Neo4j/Cognee) natively on Windows limits scalability due to Docker hypervisor delays. We solved this by creating a silent, isolated fallback architecture utilizing `Kuzu` and an in-memory `Qdrant` instance to store RAG databases perfectly across all host platforms without explicit container requirements.
+
+---
+
+## 📝 Additional Notes
+
+- **ONNX Optimization**: The system handles high-velocity CPU workloads without relying on large hardware accelerators (NVIDIA/CUDA) by heavily utilizing `qdrant-fastembed` and quantized huggingface runtimes (`bge-small-en-v1.5-onnx-q`).
+- **Privacy via Ephemeral Uploads**: Incoming claims in the form of heavy binary formats (MP4, WAV, JPG) are parsed contextually and subsequently erased or securely isolated inside `temp` and `uploads` paths to restrict local hard drive bloat.
+
+---
+
 ## 📁 Core Directory Structure
 
 ```text
