@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+Anaconda/
+uploads/
+temp/
+.cognee_system/
+*.log
+core/google_creds.json
